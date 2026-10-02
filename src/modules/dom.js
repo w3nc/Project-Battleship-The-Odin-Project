@@ -41,11 +41,35 @@ export const renderGrid = (label) => {
   return grid;
 };
 
-const paintCell = (cell, { ship, hit, miss, sunk }) => {
+// What the square actually is, said out loud. The board is drawn with colour
+// alone, so without this a screen reader announces a bare coordinate and a hit,
+// a wreck and open water are indistinguishable.
+const stateOf = ({ ship, hit, miss, sunk }) => {
+  if (sunk) return "sunk";
+  if (hit) return "hit";
+  if (miss) return "miss";
+  if (ship) return "your ship";
+
+  return "open water";
+};
+
+const paintCell = (cell, state) => {
+  const { ship, hit, miss, sunk } = state;
+  const label = `${cellName([
+    Number(cell.dataset.x),
+    Number(cell.dataset.y),
+  ])}, ${stateOf(state)}`;
+
   cell.classList.toggle("cell--ship", ship);
   cell.classList.toggle("cell--hit", hit);
   cell.classList.toggle("cell--miss", miss);
   cell.classList.toggle("cell--sunk", sunk);
+
+  // A live region would read all hundred of these on every repaint, so the
+  // label is only written when it has actually changed.
+  if (cell.getAttribute("aria-label") !== label) {
+    cell.setAttribute("aria-label", label);
+  }
 };
 
 export const paintBoard = (label, board, { revealShips = false } = {}) => {
@@ -73,10 +97,24 @@ export const paintBoard = (label, board, { revealShips = false } = {}) => {
 // restarts it instead of leaving the board stuck lit.
 const flashTimers = {};
 
+// The flash length, read from the same token the keyframes use so the attribute
+// is not stripped off before the animation has finished (a snap) or long after
+// (a wasted repaint). Falls back to the token's value where there is no
+// stylesheet to ask.
+const flashDuration = () => {
+  if (typeof getComputedStyle !== "function") return 400;
+
+  const value = getComputedStyle(document.documentElement).getPropertyValue(
+    "--dur-slow",
+  );
+
+  return parseFloat(value) || 400;
+};
+
 // The board's reaction to a shot landing on it. The attribute has to be dropped
 // and the layout re-read before it goes back on: without that flush the browser
 // keeps the finished animation and a quick second shot would not re-run it.
-export const flashBoard = (label, duration = 400) => {
+export const flashBoard = (label, duration = flashDuration()) => {
   const grid = gridOf(label);
 
   if (!grid) return null;
@@ -116,7 +154,9 @@ export const renderFleet = (label, ships) => {
 export const renderStatus = (message) => {
   const status = document.querySelector("[data-status]");
 
-  if (status) status.textContent = message;
+  // Writing the same string back into a live region re-announces it, so a plain
+  // re-render (pressing Rotate, say) would read the status out again for nothing.
+  if (status && status.textContent !== message) status.textContent = message;
 
   return status;
 };

@@ -9,14 +9,16 @@ import {
   setMuted,
 } from "./sound.js";
 
-// Every note the stub hears, in order.
+// Every note the stub hears, in order. The list is shared by every AudioContext
+// the module builds, so it survives a context being replaced between tests.
 const played = [];
 
 // The module builds its audio context once and keeps it, so the fake has to be
-// in place before the first note and stay the same object throughout.
+// in place before the first note. The stub is assigned unconditionally rather
+// than only when there is no window: under jsdom a window already exists, just
+// without any Web Audio on it, and sound.js caches the context it builds, so a
+// leaked real one would silence every later test.
 const installAudioContext = () => {
-  if (global.window) return played;
-
   class FakeAudioContext {
     constructor() {
       this.state = "running";
@@ -47,7 +49,7 @@ const installAudioContext = () => {
     resume() {}
   }
 
-  global.window = { AudioContext: FakeAudioContext };
+  global.window.AudioContext = FakeAudioContext;
 
   return played;
 };

@@ -38,8 +38,10 @@ bundled with webpack.
 ```
 .
 ├── webpack.config.js       webpack and dev server configuration
+├── jest.config.js          jsdom test environment, coverage scope
 ├── babel.config.js         Babel preset so Jest can run the ES modules
 ├── eslint.config.js        ESLint flat config
+├── .github/workflows/      CI: format, lint, test and build on every push
 ├── DESIGN.md               visual direction (see the design note below)
 ├── src
 │   ├── template.html       HtmlWebpackPlugin template
@@ -63,23 +65,43 @@ lives in a factory or module, and the DOM only reads and paints state.
 
 ## Scripts
 
-| command                | what it does                                           |
-| ---------------------- | ------------------------------------------------------ |
-| `npm run build`        | bundle the app into `dist/`                            |
-| `npm start`            | serve the app on http://localhost:8080 with hot reload |
-| `npm test`             | run the Jest suite once                                |
-| `npm run test:watch`   | run Jest in watch mode while doing TDD                 |
-| `npm run lint`         | check the code with ESLint                             |
-| `npm run lint:fix`     | apply ESLint fixes                                     |
-| `npm run format`       | format with Prettier                                   |
-| `npm run format:check` | check the formatting                                   |
+| command                 | what it does                                           |
+| ----------------------- | ------------------------------------------------------ |
+| `npm run build`         | bundle the app into `dist/`                            |
+| `npm start`             | serve the app on http://localhost:8080 with hot reload |
+| `npm test`              | run the Jest suite once                                |
+| `npm run test:watch`    | run Jest in watch mode while doing TDD                 |
+| `npm run test:coverage` | run the suite and report coverage                      |
+| `npm run lint`          | check the code with ESLint                             |
+| `npm run lint:fix`      | apply ESLint fixes                                     |
+| `npm run format`        | format with Prettier                                   |
+| `npm run format:check`  | check the formatting                                   |
+| `npm run check`         | format, lint and test in one go, as CI does            |
 
 ## Tests
 
-`npm test` covers Ship, Gameboard, random placement, Player, the AI and the game
-controller. The lesson asks for the game logic to be driven test first, and the
-DOM is deliberately not unit tested: `src/index.js` and `src/modules/dom.js` only
-wire events and paint state, so they are exercised by hand in the browser.
+`npm test` covers Ship, Gameboard, random placement, Player, the AI, the game
+controller and the DOM layer. The lesson asks for the game logic to be driven
+test first; the DOM suite uses jsdom and was added after a run of bugs that all
+turned out to live in the untested rendering layer (a gate screen that could not
+be dismissed, an enemy fleet that flickered into view, a board that stayed
+clickable on the wrong turn).
+
+| suite                        | what it holds down                                 |
+| ---------------------------- | -------------------------------------------------- |
+| `ship`, `gameboard`, `fleet` | hitting, sinking, placement rules, misses          |
+| `placement`                  | a whole random fleet, never overlapping            |
+| `player`                     | the two seats                                      |
+| `ai`                         | target choice, hunting neighbours, the line sweep  |
+| `game`                       | phases, turns, hit-again, pass & play, visibility  |
+| `sound`                      | each cue, and that audio failure is never fatal    |
+| `dom`                        | rendering, the gate dialog, the verdict, the flash |
+
+`src/index.js` is still wired by hand in the browser: it is the event wiring
+between `game.js` and `dom.js`, and the two ends are now both tested.
+
+`npm run check` runs the formatting, lint and test gates in one go, and is what
+CI runs on every push and pull request.
 
 ## Design note
 
