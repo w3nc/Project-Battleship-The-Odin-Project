@@ -1,0 +1,41 @@
+{
+  "name": "project-knights-travails-the-odin-project",
+  "version": "1.0.0",
+  "description": "Knights Travails practice from The Odin Project: a knightMoves function that walks an implicit graph of the 8x8 chessboard with breadth-first search and returns the shortest route between two squares.",
+  "main": "src/modules/knightMoves.js",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "demo": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/w3nc/Project-Knights-Travails-The-Odin-Project.git"
+  },
+  "keywords": [
+    "graph",
+    "breadth-first-search",
+    "shortest-path",
+    "chessboard",
+    "data-structures",
+    "the-odin-project"
+  ],
+  "bugs": {
+    "url": "https://github.com/w3nc/Project-Knights-Travails-The-Odin-Project/issues"
+  },
+  "homepage": "https://github.com/w3nc/Project-Knights-Travails-The-Odin-Project#readme",
+  "devDependencies": {
+    "@babel/core": "^8.0.6",
+    "@babel/preset-env": "^8.0.6",
+    "@eslint/js": "^10.0.1",
+    "babel-jest": "^30.5.2",
+    "eslint": "^10.11.0",
+    "globals": "^17.12.0",
+    "jest": "^30.5.2",
+    "prettier": "3.9.8"
+  }
+}
