@@ -4,8 +4,9 @@
   "description": "Battleship from The Odin Project's JavaScript path: a Test Driven Development build of the classic game against the computer, bundled with webpack.",
   "main": "src/index.js",
   "scripts": {
-    "build": "webpack --config webpack.config.js",
-    "start": "webpack serve --config webpack.config.js",
+    "build": "webpack --config webpack.prod.js",
+    "start": "webpack serve --config webpack.dev.js",
+    "preview": "webpack serve --config webpack.prod.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
@@ -42,10 +43,12 @@
     "html-webpack-plugin": "^5.0.0",
     "jest": "^30.5.2",
     "jest-environment-jsdom": "^30.5.2",
+    "mini-css-extract-plugin": "^2.10.2",
     "prettier": "3.9.8",
     "style-loader": "^4.0.0",
     "webpack": "^5.0.0",
     "webpack-cli": "^6.0.0",
-    "webpack-dev-server": "^5.0.0"
+    "webpack-dev-server": "^5.0.0",
+    "webpack-merge": "^6.0.1"
   }
 }

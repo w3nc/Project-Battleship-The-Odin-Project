@@ -37,7 +37,9 @@ bundled with webpack.
 
 ```
 .
-├── webpack.config.js       webpack and dev server configuration
+├── webpack.common.js       entry, output, HtmlWebpackPlugin, shared loaders
+├── webpack.dev.js          webpack-merge: dev server, style-loader, source maps
+├── webpack.prod.js         webpack-merge: minified bundle, CSS extracted
 ├── jest.config.js          jsdom test environment, coverage scope
 ├── babel.config.js         Babel preset so Jest can run the ES modules
 ├── eslint.config.js        ESLint flat config
@@ -68,6 +70,7 @@ lives in a factory or module, and the DOM only reads and paints state.
 | ----------------------- | ------------------------------------------------------ |
 | `npm run build`         | bundle the app into `dist/`                            |
 | `npm start`             | serve the app on http://localhost:8080 with hot reload |
+| `npm run preview`       | serve the production bundle on http://localhost:8080   |
 | `npm test`              | run the Jest suite once                                |
 | `npm run test:watch`    | run Jest in watch mode while doing TDD                 |
 | `npm run test:coverage` | run the suite and report coverage                      |
