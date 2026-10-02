@@ -79,6 +79,24 @@ lives in a factory or module, and the DOM only reads and paints state.
 | `npm run format`        | format with Prettier                                   |
 | `npm run format:check`  | check the formatting                                   |
 | `npm run check`         | format, lint and test in one go, as CI does            |
+| `npm run deploy`        | build and publish `dist/` to the `gh-pages` branch     |
+
+## Deploy
+
+`dist/` is a static bundle, so the app deploys as plain files. `npm run deploy`
+builds it and pushes the folder to a `gh-pages` branch with
+[gh-pages](https://github.com/tschaub/gh-pages).
+
+One-time setup: open **Settings → Pages**, set the source to **Deploy from a
+branch**, and choose `gh-pages` / `/ (root)`. After that, every release is:
+
+```sh
+npm run deploy
+```
+
+The site is served from
+https://w3nc.github.io/Project-Battleship-The-Odin-Project/. Asset paths in the
+bundle are relative, so that subpath needs no `publicPath` to configure.
 
 ## Tests
 
