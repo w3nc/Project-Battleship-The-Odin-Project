@@ -1,5 +1,3 @@
-// Every sound is synthesised from a few oscillators - nothing to load. Audio is
-// a nicety, so a failure in here must never break the game.
 let context = null;
 let muted = false;
 
@@ -80,8 +78,6 @@ export const playTurn = (seat) => {
   });
 };
 
-// The pass-the-device screen: two rising notes, so handing the game over has
-// its own cue instead of sounding like a turn starting.
 export const playGate = () => {
   blip({ frequency: 494, type: "triangle", duration: 0.1, volume: 0.04 });
   blip({ frequency: 740, delay: 0.11, type: "triangle", duration: 0.16 });

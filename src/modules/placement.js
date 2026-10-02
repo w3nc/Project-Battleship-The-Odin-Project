@@ -3,8 +3,6 @@ import createShip from "./ship.js";
 
 const randomIndex = (random, count) => Math.floor(random() * count);
 
-// A ship only fits where its whole length stays on the board, so the number of
-// legal start coordinates shrinks by (length - 1) along the axis it runs down.
 const randomStart = (length, orientation, random) => {
   const horizontal = orientation === "horizontal";
   const spanX = horizontal ? length : 1;

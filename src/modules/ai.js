@@ -25,8 +25,6 @@ export const legalTargets = (board) => {
 const openCells = (board, cells) =>
   cells.filter((cell) => isOnBoard(cell) && !board.hasBeenAttacked(cell));
 
-// Two hits in a row fix the axis of the ship, so the four squares beside them
-// collapse into two worth probing: the ones just past either end of the run.
 const lineEnds = (chain, board) => {
   const vertical = chain[0][0] === chain[1][0];
   const along = (cell) => (vertical ? cell[1] : cell[0]);
@@ -40,8 +38,6 @@ const lineEnds = (chain, board) => {
   ]);
 };
 
-// A hit sends it hunting the four squares beside it, two hits in a row turn that
-// into a sweep along the line, and a sunk ship wipes the lead and it searches.
 const createAi = (random = Math.random) => {
   let aims = [];
   let chain = [];
@@ -70,8 +66,6 @@ const createAi = (random = Math.random) => {
   const digest = (coordinate, result, board) => {
     if (result.outcome !== "hit") return;
 
-    // Nothing left to hunt on a sunk ship, and its neighbours cannot be told
-    // apart from another ship sitting alongside, so drop the whole lead.
     if (result.sunk) {
       forget();
       return;
@@ -86,8 +80,6 @@ const createAi = (random = Math.random) => {
 
     const ends = lineEnds(chain, board);
 
-    // Either end is as good a guess as the other, so pick one at random: a
-    // predictable AI is a free win for the player.
     aims = ends.length > 1 && random() < 0.5 ? [...ends].reverse() : ends;
   };
 

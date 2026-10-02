@@ -11,8 +11,6 @@ const seededRandom = (seed = 1) => {
   };
 };
 
-// Spread the fleet down the left of the board so tests can place it by hand,
-// one ship per even row: Carrier, Battleship, Cruiser, Submarine, Destroyer.
 const MANUAL_PLACEMENTS = [
   [0, 0],
   [0, 2],
@@ -228,8 +226,6 @@ describe("createGame", () => {
   });
 });
 
-// Two players sharing one device: both fleets are placed by hand and the
-// game hands the device over between turns instead of firing on its own.
 describe("pass & play", () => {
   const localGame = () =>
     createGame({ random: seededRandom(5), mode: "local" });
@@ -390,8 +386,6 @@ describe("fleet visibility", () => {
 
     game.fire(emptyCell(game.getBoard("computer")));
 
-    // Player 1 still holds the device for a beat before the screen appears, so
-    // neither fleet may be painted in that window.
     expect(game.getTurn()).toBe("computer");
     expect(game.getHandoff()).toBe("computer");
     expect(game.isFleetVisible("computer")).toBe(false);
@@ -403,8 +397,6 @@ describe("fleet visibility", () => {
   });
 });
 
-// Which board accepts a click, held in the game rather than the renderer because
-// a click is read as fire() with the turn's seat.
 describe("aiming", () => {
   test("points at the enemy board on your move", () => {
     const game = startGame();

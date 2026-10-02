@@ -7,7 +7,6 @@ export const coordinatesFor = (length, [x, y], orientation) =>
     orientation === "vertical" ? [x, y + offset] : [x + offset, y],
   );
 
-// The classic 10x10 fleet: 17 squares in total.
 export const FLEET = [
   { name: "Carrier", length: 5 },
   { name: "Battleship", length: 4 },

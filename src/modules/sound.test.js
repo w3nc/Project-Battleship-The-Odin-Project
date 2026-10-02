@@ -9,12 +9,8 @@ import {
   setMuted,
 } from "./sound.js";
 
-// Every note the stub hears, in order. The list is shared by every AudioContext
-// the module builds, so it survives a context being replaced between tests.
 const played = [];
 
-// Assigned unconditionally: under jsdom a window exists with no Web Audio on it,
-// and sound.js caches the context it builds, so a real one would poison later tests.
 const installAudioContext = () => {
   class FakeAudioContext {
     constructor() {

@@ -41,8 +41,6 @@ export const renderGrid = (label) => {
   return grid;
 };
 
-// What the square is, said out loud: the board is colour-only, so without this a
-// hit, a wreck and open water are the same word to a screen reader.
 const stateOf = ({ ship, hit, miss, sunk }) => {
   if (sunk) return "sunk";
   if (hit) return "hit";
@@ -64,8 +62,6 @@ const paintCell = (cell, state) => {
   cell.classList.toggle("cell--miss", miss);
   cell.classList.toggle("cell--sunk", sunk);
 
-  // A live region would read all hundred of these on every repaint, so the
-  // label is only written when it has actually changed.
   if (cell.getAttribute("aria-label") !== label) {
     cell.setAttribute("aria-label", label);
   }
@@ -92,12 +88,8 @@ export const paintBoard = (label, board, { revealShips = false } = {}) => {
   }
 };
 
-// One pending flash per board, so a shot landing inside the previous flash
-// restarts it instead of leaving the board stuck lit.
 const flashTimers = {};
 
-// Read from the token the keyframes use, so the mark is not stripped before the
-// animation finishes (a snap) or long after it (a wasted repaint).
 const flashDuration = () => {
   if (typeof getComputedStyle !== "function") return 400;
 
@@ -108,8 +100,6 @@ const flashDuration = () => {
   return parseFloat(value) || 400;
 };
 
-// The mark is dropped and the layout re-read first: without that flush the
-// browser keeps the finished animation and a second shot would not re-run it.
 export const flashBoard = (label, duration = flashDuration()) => {
   const grid = gridOf(label);
 
@@ -150,8 +140,6 @@ export const renderFleet = (label, ships) => {
 export const renderStatus = (message) => {
   const status = document.querySelector("[data-status]");
 
-  // Writing the same string back into a live region re-announces it, so a plain
-  // re-render (pressing Rotate, say) would read the status out again for nothing.
   if (status && status.textContent !== message) status.textContent = message;
 
   return status;
@@ -191,8 +179,6 @@ export const renderSeatTitles = (titles) => {
   });
 };
 
-// The gate dialog is found by its own [data-gate] flag, so no other element may
-// carry that attribute - the shell wearing it once hid the dialog entirely.
 export const setGameInert = (inert) => {
   const surface = document.querySelectorAll(".boards, .controls");
 
@@ -201,8 +187,6 @@ export const setGameInert = (inert) => {
   return surface;
 };
 
-// The pass-the-device screen. It covers the boards and takes focus, so the
-// player picking the device up cannot read the other fleet from behind it.
 export const showGate = ({ title, message, label = "Ready" }) => {
   const gate = document.querySelector("[data-gate]");
 

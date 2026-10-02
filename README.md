@@ -42,7 +42,6 @@ bundled with webpack.
 ├── babel.config.js         Babel preset so Jest can run the ES modules
 ├── eslint.config.js        ESLint flat config
 ├── .github/workflows/      CI: format, lint, test and build on every push
-├── DESIGN.md               visual direction (see the design note below)
 ├── src
 │   ├── template.html       HtmlWebpackPlugin template
 │   ├── styles.css          board, controls and state styling
@@ -102,12 +101,3 @@ between `game.js` and `dom.js`, and the two ends are now both tested.
 
 `npm run check` runs the formatting, lint and test gates in one go, and is what
 CI runs on every push and pull request.
-
-## Design note
-
-`DESIGN.md` holds the direction this interface is built against: the palette with
-a reason per colour, the typeface pair, the 8px size rule and the ENERGY 2 /
-RHYTHM 2 / MOTION 2 dials. Everything in `src/styles.css` is derived from it, so
-a colour or a size there should be traceable to a line in `DESIGN.md` rather than
-invented on the spot. The two lines `DESIGN.md` marks as agent-supplied - the
-per-colour reasons and the typeface - are the ones worth a second look.

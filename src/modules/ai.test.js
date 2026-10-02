@@ -13,7 +13,6 @@ const seededRandom = (seed = 1) => {
   };
 };
 
-// A five-square Carrier lying across y = 3, so a hit has room on every side.
 const boardWithCarrier = () => {
   const board = createGameboard();
 
@@ -22,7 +21,6 @@ const boardWithCarrier = () => {
   return board;
 };
 
-// The AI only learns about shots it is told about, so drive that by hand.
 const shoot = (board, ai, coordinate) => {
   const result = board.receiveAttack(coordinate);
 
@@ -119,7 +117,6 @@ describe("createAi", () => {
     shoot(board, ai, [3, 3]);
     shoot(board, ai, [4, 3]);
 
-    // The four neighbours collapse into the two squares past the ends of the run.
     expect([
       [2, 3],
       [5, 3],
@@ -150,8 +147,6 @@ describe("createAi", () => {
     shoot(board, ai, [4, 4]);
     expect(shoot(board, ai, [5, 4]).sunk).toBe(true);
 
-    // The hunt is over, so the next square is a fresh pick at random rather
-    // than another neighbour of the ship that just sank.
     expect(ai.nextTarget(board)).toEqual([0, 0]);
   });
 
@@ -161,7 +156,6 @@ describe("createAi", () => {
 
     shoot(board, ai, [3, 3]);
 
-    // A square the AI had aimed at is taken before it gets there.
     board.receiveAttack([3, 2]);
 
     const targets = [

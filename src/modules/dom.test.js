@@ -20,8 +20,6 @@ import {
 
 const SEATS = ["player", "computer"];
 
-// The same hooks template.html carries. Built here rather than loaded from the
-// file so a test can leave one out and see what the renderer does about it.
 const board = (label) => `
   <article class="board">
     <h2 data-board-title="${label}">${label}</h2>
@@ -50,7 +48,6 @@ const cellAt = (label, [x, y]) =>
     `[data-grid="${label}"] [data-x="${x}"][data-y="${y}"]`,
   );
 
-// A board carrying one real ship, placed through the same API the game uses.
 const boardWith = (name, length, start, orientation) => {
   const fresh = createGameboard();
 
@@ -112,8 +109,6 @@ describe("paintBoard", () => {
 
     const cell = cellAt("player", [0, 0]);
 
-    // Both, because the stylesheet layers the hatch over the hit colour and the
-    // sunk rule comes last.
     expect(cell.classList.contains("cell--hit")).toBe(true);
     expect(cell.classList.contains("cell--sunk")).toBe(true);
   });
@@ -229,8 +224,6 @@ describe("renderStatus", () => {
 
     renderStatus("Your turn. Fire at enemy waters.");
 
-    // Setting textContent swaps in a fresh text node, and a live region reads a
-    // swap out again. A plain re-render must therefore leave the node alone.
     expect(status.firstChild).toBe(written);
   });
 
@@ -432,8 +425,6 @@ describe("flashBoard", () => {
     jest.advanceTimersByTime(200);
     flashBoard("player", 400);
 
-    // 500ms after the first shot but only 300 after the second, so the first
-    // timer must have been cancelled or the mark would already be gone.
     jest.advanceTimersByTime(300);
     expect(document.querySelector('[data-grid="player"]').dataset.shot).toBe(
       "landed",
@@ -447,8 +438,6 @@ describe("flashBoard", () => {
   });
 
   test("falls back to the token's own value with no stylesheet to read", () => {
-    // jsdom applies no stylesheet, so --dur-slow resolves to nothing and this
-    // exercises the 400ms fallback the flash shares with the keyframes.
     jest.useFakeTimers();
     renderGrid("player");
     flashBoard("player");
