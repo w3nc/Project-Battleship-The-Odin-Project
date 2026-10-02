@@ -296,6 +296,17 @@ body {
   background: var(--accent);
 }
 
+/* the computer's move: your own waters are the ones under fire, so the band goes
+   red rather than wearing the teal that means "you can act here". Bot mode only:
+   in pass & play the fleet being shot at is the one the device holder is aiming
+   at, so it stays actionable. */
+.app[data-mode="computer"][data-phase="playing"][data-turn="computer"]
+  .board:has([data-grid="player"])
+  .board__title {
+  color: var(--ink);
+  background: var(--hit);
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(10, minmax(0, 1fr));

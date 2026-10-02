@@ -118,6 +118,18 @@ const createGame = ({
     return seat === (local ? turn : "player");
   };
 
+  // Whose board takes a click once the shooting has started: the board you aim at.
+  // Against the computer that is only ever the enemy board, and only while it is
+  // your move. Without that second guard the player's own waters accept clicks all
+  // through the computer's turn, and a click there is read as the computer's shot,
+  // which lets the player aim for it.
+  const aimingSeat = () => {
+    if (isOver() || handoff || phase !== "playing") return null;
+    if (!local && turn !== "player") return null;
+
+    return OTHER[turn];
+  };
+
   const resolve = (attacker, coordinate) => {
     const defender = OTHER[attacker];
     const defenderBoard = boardOf(defender);
@@ -220,6 +232,7 @@ const createGame = ({
     returnFire,
     isOver,
     isFleetVisible,
+    aimingSeat,
     getPhase: () => phase,
     getPlacingSeat: () => placingSeat,
     getTurn: () => turn,

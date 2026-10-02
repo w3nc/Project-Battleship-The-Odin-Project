@@ -404,3 +404,59 @@ describe("fleet visibility", () => {
     expect(game.isFleetVisible("computer")).toBe(true);
   });
 });
+
+// Which board accepts a click. The rule lives here rather than in the renderer
+// because getting it wrong is not a cosmetic problem: the player's own board
+// stays clickable through the computer's turn, and a click there goes through
+// fire() with the turn as its seat, so the player ends up aiming for the
+// computer.
+describe("aiming", () => {
+  test("points at the enemy board on your move", () => {
+    const game = startGame();
+
+    expect(game.aimingSeat()).toBe("computer");
+  });
+
+  test("points at nothing while the computer is taking its turn", () => {
+    const game = startGame();
+
+    game.fire(emptyCell(game.getBoard("computer")));
+
+    expect(game.getTurn()).toBe("computer");
+    expect(game.aimingSeat()).toBeNull();
+  });
+
+  test("points at nothing before the fleets are placed or once it is over", () => {
+    const game = createGame({ random: seededRandom(1) });
+
+    expect(game.aimingSeat()).toBeNull();
+
+    const done = startGame();
+
+    shipCells(done.getBoard("computer")).forEach((cell) => done.fire(cell));
+
+    expect(done.isOver()).toBe(true);
+    expect(done.aimingSeat()).toBeNull();
+  });
+
+  test("in pass & play points at whichever fleet is under fire", () => {
+    const game = createGame({ random: seededRandom(5), mode: "local" });
+
+    placeFleetByHand(game);
+    game.start(); // Player 2 is handed the device
+    game.acknowledge();
+    placeFleetByHand(game); // Player 2 places
+    game.start(); // Player 1 to move
+
+    expect(game.aimingSeat()).toBeNull(); // nothing until the handover clears
+
+    game.acknowledge();
+    expect(game.aimingSeat()).toBe("computer"); // Player 1 aims at Player 2
+
+    game.fire(emptyCell(game.getBoard("computer"))); // a miss hands over
+    expect(game.aimingSeat()).toBeNull();
+
+    game.acknowledge();
+    expect(game.aimingSeat()).toBe("player"); // Player 2 aims at Player 1
+  });
+});

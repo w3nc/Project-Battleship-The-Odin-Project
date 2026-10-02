@@ -63,12 +63,14 @@ const soundToggle = document.querySelector('[data-toggle="sound"]');
 const nameOf = (seat) => game.getPlayer(seat).name;
 
 // Whose board takes clicks: your own while placing, the enemy's while firing.
+// Once play starts that question belongs to the game, not the DOM (see
+// aimingSeat), because it depends on the mode and on whose move it is.
 const interactiveSeat = () => {
   if (game.isOver() || game.getHandoff()) return null;
 
   return game.getPhase() === "placing"
     ? game.getPlacingSeat()
-    : OTHER[game.getTurn()];
+    : game.aimingSeat();
 };
 
 const titlesFor = () =>
@@ -230,6 +232,7 @@ const render = () => {
 
   app.dataset.phase = game.getPhase();
   app.dataset.turn = game.getTurn();
+  app.dataset.mode = game.getMode();
 };
 
 const clearPreviews = () => SEATS.forEach((seat) => clearPreview(seat));
