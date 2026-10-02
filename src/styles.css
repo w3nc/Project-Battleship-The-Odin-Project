@@ -1,11 +1,9 @@
 :root {
-  /* palette: two surfaces and the single signal accent */
   --panel: #1b2837;
   --ink: #101b27;
   --accent: #18bc9c;
   --accent-ink: #062019;
 
-  /* functional state colours: they encode the game, not the brand */
   --hull: #3a4f68;
   --hit: #ef4b4b;
   --miss: #5c7a94;
@@ -16,7 +14,6 @@
   --line: #24384a;
   --water-dot: rgb(24 188 156 / 0.34);
 
-  /* a small deliberate radius set, not everything pill (R-11) */
   --radius-sm: 6px;
   --radius-md: 12px;
 
@@ -49,8 +46,7 @@
   --dur-med: 250ms;
   --dur-slow: 400ms;
 
-  /* the wreck hatch: a done-for thing is scribbled out, the way a struck-off
-     entry is hatched. One texture, reused by every "gone" state */
+  /* one hatch texture, reused by every sunk state */
   --wreck-hatch: repeating-linear-gradient(
     135deg,
     transparent 0 3px,
@@ -92,7 +88,6 @@ body {
   line-height: 1.25;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  /* a stamped hull plate, not a glowing logo: the type sits in the surface */
   text-shadow: 0 1px 0 rgb(0 0 0 / 0.55);
 }
 
@@ -102,7 +97,6 @@ body {
   font-size: var(--fs-sm);
 }
 
-/* the turn band: it names whose move it is and lights up on yours */
 .status {
   width: 100%;
   max-width: 44rem;
@@ -121,8 +115,7 @@ body {
 .app[data-phase="playing"][data-turn="player"] .status {
   color: var(--text);
   border-color: var(--accent);
-  /* a single double-pulse when the move comes back to you: the attribute only
-     changes on a real turn change, so this fires once and stops (R-19) */
+  /* data-turn only changes on a real turn change, so this fires once */
   animation: turn-call var(--dur-slow) var(--ease) 2;
 }
 
@@ -152,8 +145,6 @@ body {
     transform var(--dur-fast) var(--ease);
 }
 
-/* a switch should feel like a switch: it lifts a hair on hover and gives back
-   under the press, so the controls behave like the physical panel they evoke */
 .button:hover {
   border-color: var(--accent);
   transform: translateY(-1px);
@@ -276,7 +267,6 @@ body {
   filter: blur(16px);
 }
 
-/* the banded header, and the board you can act on carries the accent (R-05) */
 .board__title {
   margin: 0;
   padding: var(--space-1) var(--space-2);
@@ -289,6 +279,7 @@ body {
   border-radius: var(--radius-sm);
 }
 
+/* the board you can act on carries the accent */
 .board:has(.cell:not(:disabled)) .board__title {
   color: var(--accent-ink);
   background: var(--accent);
@@ -319,8 +310,6 @@ body {
   border-color: var(--accent);
 }
 
-/* the board answers a shot: a brief swell of light through the water, so the
-   click has a physical consequence here rather than only in the cell colour */
 .grid[data-shot] {
   animation: shock var(--dur-slow) var(--ease);
 }
@@ -343,8 +332,7 @@ body {
     transform var(--dur-fast) var(--ease);
 }
 
-/* a ring with a cross through it, drawn from two one-pixel gradients so no icon
-   is loaded. Out of flow, or it would push the centred sonar dot aside. */
+/* the reticle sits out of flow, or it would push the centred sonar dot aside */
 .cell::before {
   content: "";
   position: absolute;
@@ -365,7 +353,7 @@ body {
   pointer-events: none;
 }
 
-/* the water motif: an unshot cell is a single sonar dot (identity motif) */
+/* an unshot cell shows a single sonar dot */
 .cell::after {
   content: "";
   width: 3px;
@@ -390,8 +378,6 @@ body {
   cursor: crosshair;
 }
 
-/* the dot says "water", the reticle says "you may shoot here": one hands over
-   to the other, and the cursor becomes a crosshair as well. */
 .app[data-phase="playing"]
   .board:has(.cell:not(:disabled))
   .cell:not(:disabled):hover::before {
@@ -405,7 +391,6 @@ body {
   opacity: 0;
 }
 
-/* the square gives under the finger before the shot is committed */
 .cell:not(:disabled):active {
   transform: scale(0.9);
 }
@@ -439,8 +424,7 @@ body {
   background: var(--hit);
 }
 
-/* a wreck is hatched the way a stricken entry is struck through on paper, so
-   sunk reads without relying on red alone (R-31) */
+/* hatched so sunk reads without relying on red alone */
 .cell--sunk {
   background: var(--wreck-hatch), var(--sunk);
 }
@@ -488,8 +472,6 @@ body {
   border-radius: var(--radius-sm);
 }
 
-/* a hull pip that hatches over when the ship goes down: this readout is what
-   the player actually scans, so its state is a mark rather than a decoration */
 .fleet__item::before {
   content: "";
   width: 6px;

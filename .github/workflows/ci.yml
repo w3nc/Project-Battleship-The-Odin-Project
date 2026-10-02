@@ -1,6 +1,4 @@
-# The checks that guard `main`. Same set as `npm run check`, plus a bundle so a
-# broken webpack config or a bad import is caught here rather than on the user's
-# machine.
+# Same checks as `npm run check`, plus a build to catch broken bundling.
 name: ci
 
 on:

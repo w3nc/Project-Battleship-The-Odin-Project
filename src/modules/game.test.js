@@ -233,11 +233,11 @@ describe("pass & play", () => {
   const startLocalGame = () => {
     const game = localGame();
 
-    placeFleetByHand(game); // Player 1 places
-    game.start(); // hands the device over
+    placeFleetByHand(game);
+    game.start();
     game.acknowledge();
-    placeFleetByHand(game); // Player 2 places
-    game.start(); // play begins, Player 1 to move
+    placeFleetByHand(game);
+    game.start();
 
     // The handover to Player 1 is deliberately left waiting.
     return game;
@@ -353,21 +353,21 @@ describe("fleet visibility", () => {
   test("in pass & play follows whoever is holding the device", () => {
     const game = createGame({ random: seededRandom(5), mode: "local" });
 
-    placeFleetByHand(game); // Player 1 places
+    placeFleetByHand(game);
     expect(game.isFleetVisible("player")).toBe(true);
     expect(game.isFleetVisible("computer")).toBe(false);
 
-    game.start(); // the device changes hands
+    game.start();
     expect(game.isFleetVisible("player")).toBe(false);
     expect(game.isFleetVisible("computer")).toBe(false);
 
-    game.acknowledge(); // Player 2 takes it
+    game.acknowledge();
 
     expect(game.isFleetVisible("computer")).toBe(true);
     expect(game.isFleetVisible("player")).toBe(false);
 
-    placeFleetByHand(game); // Player 2 places
-    game.start(); // Player 1 to move
+    placeFleetByHand(game);
+    game.start();
     game.acknowledge();
 
     expect(game.isFleetVisible("player")).toBe(true);
@@ -382,7 +382,7 @@ describe("fleet visibility", () => {
     game.acknowledge();
     placeFleetByHand(game);
     game.start();
-    game.acknowledge(); // Player 1 to move
+    game.acknowledge();
 
     game.fire(emptyCell(game.getBoard("computer")));
 
@@ -391,7 +391,7 @@ describe("fleet visibility", () => {
     expect(game.isFleetVisible("computer")).toBe(false);
     expect(game.isFleetVisible("player")).toBe(false);
 
-    game.acknowledge(); // Player 2 takes it
+    game.acknowledge();
 
     expect(game.isFleetVisible("computer")).toBe(true);
   });
@@ -430,12 +430,12 @@ describe("aiming", () => {
     const game = createGame({ random: seededRandom(5), mode: "local" });
 
     placeFleetByHand(game);
-    game.start(); // Player 2 is handed the device
+    game.start();
     game.acknowledge();
-    placeFleetByHand(game); // Player 2 places
-    game.start(); // Player 1 to move
+    placeFleetByHand(game);
+    game.start();
 
-    expect(game.aimingSeat()).toBeNull(); // nothing until the handover clears
+    expect(game.aimingSeat()).toBeNull();
 
     game.acknowledge();
     expect(game.aimingSeat()).toBe("computer"); // Player 1 aims at Player 2
