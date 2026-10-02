@@ -390,10 +390,8 @@ describe("fleet visibility", () => {
 
     game.fire(emptyCell(game.getBoard("computer")));
 
-    // The turn has passed to Player 2, but Player 1 is still holding the device
-    // for another beat before the pass-the-device screen appears. Neither fleet
-    // may be painted in that window, or Player 1 reads Player 2's layout off the
-    // board before handing it over.
+    // Player 1 still holds the device for a beat before the screen appears, so
+    // neither fleet may be painted in that window.
     expect(game.getTurn()).toBe("computer");
     expect(game.getHandoff()).toBe("computer");
     expect(game.isFleetVisible("computer")).toBe(false);
@@ -405,11 +403,8 @@ describe("fleet visibility", () => {
   });
 });
 
-// Which board accepts a click. The rule lives here rather than in the renderer
-// because getting it wrong is not a cosmetic problem: the player's own board
-// stays clickable through the computer's turn, and a click there goes through
-// fire() with the turn as its seat, so the player ends up aiming for the
-// computer.
+// Which board accepts a click, held in the game rather than the renderer because
+// a click is read as fire() with the turn's seat.
 describe("aiming", () => {
   test("points at the enemy board on your move", () => {
     const game = startGame();

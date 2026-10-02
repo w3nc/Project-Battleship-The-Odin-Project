@@ -41,9 +41,8 @@ export const renderGrid = (label) => {
   return grid;
 };
 
-// What the square actually is, said out loud. The board is drawn with colour
-// alone, so without this a screen reader announces a bare coordinate and a hit,
-// a wreck and open water are indistinguishable.
+// What the square is, said out loud: the board is colour-only, so without this a
+// hit, a wreck and open water are the same word to a screen reader.
 const stateOf = ({ ship, hit, miss, sunk }) => {
   if (sunk) return "sunk";
   if (hit) return "hit";
@@ -97,10 +96,8 @@ export const paintBoard = (label, board, { revealShips = false } = {}) => {
 // restarts it instead of leaving the board stuck lit.
 const flashTimers = {};
 
-// The flash length, read from the same token the keyframes use so the attribute
-// is not stripped off before the animation has finished (a snap) or long after
-// (a wasted repaint). Falls back to the token's value where there is no
-// stylesheet to ask.
+// Read from the token the keyframes use, so the mark is not stripped before the
+// animation finishes (a snap) or long after it (a wasted repaint).
 const flashDuration = () => {
   if (typeof getComputedStyle !== "function") return 400;
 
@@ -111,9 +108,8 @@ const flashDuration = () => {
   return parseFloat(value) || 400;
 };
 
-// The board's reaction to a shot landing on it. The attribute has to be dropped
-// and the layout re-read before it goes back on: without that flush the browser
-// keeps the finished animation and a quick second shot would not re-run it.
+// The mark is dropped and the layout re-read first: without that flush the
+// browser keeps the finished animation and a second shot would not re-run it.
 export const flashBoard = (label, duration = flashDuration()) => {
   const grid = gridOf(label);
 
@@ -195,10 +191,8 @@ export const renderSeatTitles = (titles) => {
   });
 };
 
-// While the pass-the-device screen is up, nothing behind it may be seen or
-// touched: the boards and the controls both go inert along with the blur.
-// Note the gate dialog itself is found by its own [data-gate] flag, so no other
-// element may carry that attribute.
+// The gate dialog is found by its own [data-gate] flag, so no other element may
+// carry that attribute - the shell wearing it once hid the dialog entirely.
 export const setGameInert = (inert) => {
   const surface = document.querySelectorAll(".boards, .controls");
 

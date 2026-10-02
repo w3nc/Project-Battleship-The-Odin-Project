@@ -5,9 +5,10 @@ import { placeFleetRandomly } from "./placement.js";
 import createPlayer from "./player.js";
 import createShip from "./ship.js";
 
+// The two seats, and the one you fire at. Exported so the renderer pairs them up
+// the same way the controller does instead of keeping a second copy.
 export const SEATS = ["player", "computer"];
-
-const OTHER = { player: "computer", computer: "player" };
+export const OTHER_SEAT = { player: "computer", computer: "player" };
 
 const createGame = ({
   mode = "computer",
@@ -38,9 +39,8 @@ const createGame = ({
   const pendingShip = (seat = placingSeat) => fleet[placed[seat]] ?? null;
   const fleetReady = (seat = placingSeat) => placed[seat] >= fleet.length;
 
-  // The seat defaults to whoever is acting right now - the seat still placing,
-  // or the seat whose turn it is - so the caller only names a seat when it is
-  // asking about the other one (a pass-and-play handover, mostly).
+  // The seat defaults to whoever is acting, so the caller only names one when it
+  // is asking about the other seat (a pass-and-play handover, mostly).
   const canPlaceNextShip = (
     start,
     orientation = "horizontal",
@@ -100,16 +100,8 @@ const createGame = ({
 
   const isOver = () => winner !== null;
 
-  // Only ever one fleet on show, and it is always your own. In pass & play that
-  // means whichever player is holding the device, so each sees their ships on
-  // their turn. Against the computer it is the player's board throughout, so the
-  // enemy fleet stays hidden for the whole game rather than flickering into view
-  // whenever the computer takes its turn.
-  //
-  // A pending handover trumps everything: the turn has already passed to the
-  // other seat, but the device is still in the outgoing player's hands, so
-  // showing the incoming seat's fleet would give the game away before the
-  // pass-the-device screen has even come up. Reveal nothing until they take it.
+  // A pending handover trumps everything: while the device changes hands neither
+  // fleet is painted, or the incoming player's layout is readable straight off.
   const isFleetVisible = (seat) => {
     if (isOver()) return true;
     if (handoff) return false;
@@ -118,20 +110,17 @@ const createGame = ({
     return seat === (local ? turn : "player");
   };
 
-  // Whose board takes a click once the shooting has started: the board you aim at.
-  // Against the computer that is only ever the enemy board, and only while it is
-  // your move. Without that second guard the player's own waters accept clicks all
-  // through the computer's turn, and a click there is read as the computer's shot,
-  // which lets the player aim for it.
+  // The board you aim at: only ever the enemy's, and only while it is your move.
+  // Otherwise a click on your own waters is read as the computer's shot.
   const aimingSeat = () => {
     if (isOver() || handoff || phase !== "playing") return null;
     if (!local && turn !== "player") return null;
 
-    return OTHER[turn];
+    return OTHER_SEAT[turn];
   };
 
   const resolve = (attacker, coordinate) => {
-    const defender = OTHER[attacker];
+    const defender = OTHER_SEAT[attacker];
     const defenderBoard = boardOf(defender);
     const result = defenderBoard.receiveAttack(coordinate);
 
@@ -149,7 +138,7 @@ const createGame = ({
   const fire = (coordinate, seat = turn) => {
     if (phase !== "playing" || isOver() || handoff || turn !== seat)
       return null;
-    if (boardOf(OTHER[seat]).hasBeenAttacked(coordinate)) return null;
+    if (boardOf(OTHER_SEAT[seat]).hasBeenAttacked(coordinate)) return null;
 
     return resolve(seat, coordinate);
   };
@@ -218,7 +207,6 @@ const createGame = ({
 
   return {
     getMode: () => mode,
-    getSeats: () => [...SEATS],
     pendingShip,
     fleetReady,
     canPlaceNextShip,

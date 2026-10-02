@@ -1,6 +1,5 @@
-// Every sound is synthesised from a few oscillators, so there is nothing to
-// load and nothing to ship. The module is deliberately quiet about failure:
-// audio is a nicety and must never break a game.
+// Every sound is synthesised from a few oscillators - nothing to load. Audio is
+// a nicety, so a failure in here must never break the game.
 let context = null;
 let muted = false;
 

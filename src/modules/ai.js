@@ -40,10 +40,8 @@ const lineEnds = (chain, board) => {
   ]);
 };
 
-// Firing at random and never repeating a square is all the lesson asks for.
-// On top of that this AI keeps a lead: a hit sends it hunting the four squares
-// beside it, two hits in a row turn that hunt into a sweep along the line, and
-// a sunk ship wipes the lead so it goes back to searching.
+// A hit sends it hunting the four squares beside it, two hits in a row turn that
+// into a sweep along the line, and a sunk ship wipes the lead and it searches.
 const createAi = (random = Math.random) => {
   let aims = [];
   let chain = [];

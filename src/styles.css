@@ -49,9 +49,8 @@
   --dur-med: 250ms;
   --dur-slow: 400ms;
 
-  /* the wreck hatch: a thing that is done for gets scribbled out, the way a
-     struck-off entry is hatched on paper. One texture, reused by every "gone"
-     state, so the motif reads as the project's own rather than as decoration */
+  /* the wreck hatch: a done-for thing is scribbled out, the way a struck-off
+     entry is hatched. One texture, reused by every "gone" state */
   --wreck-hatch: repeating-linear-gradient(
     135deg,
     transparent 0 3px,
@@ -271,9 +270,8 @@ body {
   }
 }
 
-/* while the pass-the-device screen is up the fleets are blurred behind it.
-   Driven by the dialog's own hidden flag, so the blur can never be left on
-   without a Ready button to clear it. */
+/* the fleets are blurred behind the pass-the-device screen, driven by the
+   dialog's own flag so the blur cannot outlive the Ready button */
 .app:has(.overlay--gate:not([hidden])) .boards {
   filter: blur(16px);
 }
@@ -296,10 +294,8 @@ body {
   background: var(--accent);
 }
 
-/* the computer's move: your own waters are the ones under fire, so the band goes
-   red rather than wearing the teal that means "you can act here". Bot mode only:
-   in pass & play the fleet being shot at is the one the device holder is aiming
-   at, so it stays actionable. */
+/* the computer's move: your waters are under fire, so the band goes red not teal.
+   Bot mode only - in pass & play the fleet under fire is actionable. */
 .app[data-mode="computer"][data-phase="playing"][data-turn="computer"]
   .board:has([data-grid="player"])
   .board__title {
@@ -347,11 +343,8 @@ body {
     transform var(--dur-fast) var(--ease);
 }
 
-/* the aiming reticle, sitting behind the sonar dot and invisible until a square
-   is hovered. It is a ring with a cross through it, drawn from two one-pixel
-   gradients, so there is no icon to load and it scales with the board. It is out
-   of flow on purpose: the dot is centred by the cell's flex box, and a second
-   in-flow child would have pushed it off centre. */
+/* a ring with a cross through it, drawn from two one-pixel gradients so no icon
+   is loaded. Out of flow, or it would push the centred sonar dot aside. */
 .cell::before {
   content: "";
   position: absolute;
@@ -388,11 +381,8 @@ body {
   cursor: default;
 }
 
-/* the aiming square tints whichever board is actually in play. Written against
-   the interactive board rather than a named seat, so in pass & play Player 2
-   gets the same hover tint on Player 1's waters as Player 1 gets on theirs.
-   Gated to the firing phase: during placement the hover would out-specify the
-   teal preview and swallow it, and a preview is the feedback that phase needs. */
+/* tints whichever board is in play, not a named seat, so pass & play gives both
+   players the same feedback. Gated to playing: it would out-specify the preview. */
 .app[data-phase="playing"]
   .board:has(.cell:not(:disabled))
   .cell:not(:disabled):hover {
@@ -400,9 +390,8 @@ body {
   cursor: crosshair;
 }
 
-/* the dot says "water"; the reticle says "you may shoot here". One hands over to
-   the other rather than both sitting in the square, and the cursor becomes a
-   crosshair too, so the whole board reads as a targeting surface. */
+/* the dot says "water", the reticle says "you may shoot here": one hands over
+   to the other, and the cursor becomes a crosshair as well. */
 .app[data-phase="playing"]
   .board:has(.cell:not(:disabled))
   .cell:not(:disabled):hover::before {

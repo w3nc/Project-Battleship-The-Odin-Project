@@ -361,9 +361,7 @@ describe("the pass-the-device gate", () => {
 
   test("drives the dialog and leaves the app shell alone", () => {
     // The bug this guards: the shell once carried a data-gate of its own, so
-    // [data-gate] matched <main> instead of the dialog. The dialog stayed
-    // hidden, the boards were already inert and blurred, and there was no Ready
-    // button left to press. The shell must never wear that flag.
+    // [data-gate] matched <main> and the dialog stayed hidden with no way out.
     const shell = document.querySelector(".app");
 
     showGate({ title: "x", message: "y" });

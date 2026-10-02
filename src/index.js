@@ -15,7 +15,7 @@ import {
   showGate,
   showOverlay,
 } from "./modules/dom.js";
-import createGame from "./modules/game.js";
+import createGame, { OTHER_SEAT, SEATS } from "./modules/game.js";
 import {
   isMuted,
   playGate,
@@ -26,9 +26,6 @@ import {
   playVerdict,
   setMuted,
 } from "./modules/sound.js";
-
-const SEATS = ["player", "computer"];
-const OTHER = { player: "computer", computer: "player" };
 
 // The computer takes a beat between shots so its hunt is readable, and the
 // pass-the-device screen waits a beat so the shooter sees where the shot landed.
@@ -62,8 +59,7 @@ const soundToggle = document.querySelector('[data-toggle="sound"]');
 
 const nameOf = (seat) => game.getPlayer(seat).name;
 
-// Whose board takes clicks: your own while placing, the enemy's while firing.
-// Once play starts that question belongs to the game, not the DOM (see
+// Once play starts the question belongs to the game, not the DOM (see
 // aimingSeat), because it depends on the mode and on whose move it is.
 const interactiveSeat = () => {
   if (game.isOver() || game.getHandoff()) return null;
@@ -105,7 +101,7 @@ const statusFor = () => {
   }
 
   if (game.getMode() === "local") {
-    return `${nameOf(game.getTurn())}: fire at ${nameOf(OTHER[game.getTurn()])}'s waters.`;
+    return `${nameOf(game.getTurn())}: fire at ${nameOf(OTHER_SEAT[game.getTurn()])}'s waters.`;
   }
 
   return game.getTurn() === "player"
