@@ -2,6 +2,7 @@ import createGameboard from "./gameboard.js";
 import createShip from "./ship.js";
 import {
   cellName,
+  clearAimColumn,
   clearPreview,
   flashBoard,
   hideGate,
@@ -12,6 +13,7 @@ import {
   renderGrid,
   renderSeatTitles,
   renderStatus,
+  setAimColumn,
   setBoardInteractive,
   setGameInert,
   showGate,
@@ -211,6 +213,54 @@ describe("renderFleet", () => {
     );
 
     expect(item.classList.contains("fleet__item--sunk")).toBe(true);
+  });
+
+  test("draws each ship as a silhouette beside its label", () => {
+    const fresh = boardWith("Carrier", 5, [0, 0]);
+
+    renderFleet("player", fresh.getShips());
+
+    const [item] = document.querySelectorAll(
+      '[data-fleet="player"] .fleet__item',
+    );
+    const ship = item.querySelector("svg.fleet__ship");
+
+    expect(ship).not.toBeNull();
+    expect(ship.getAttribute("viewBox")).toBe("0 0 34 12");
+    expect(ship.querySelector("path").getAttribute("d")).toMatch(/^M/);
+    // the profile is decoration: the label stays the only spoken content
+    expect(item.textContent).toBe("Carrier · 5");
+  });
+});
+
+describe("the aiming band", () => {
+  test("marks the board and names the column under the pointer", () => {
+    renderGrid("computer");
+
+    setAimColumn("computer", 4);
+
+    const grid = document.querySelector('[data-grid="computer"]');
+
+    expect(grid.dataset.aim).toBe("on");
+    expect(grid.style.getPropertyValue("--aim-col")).toBe("4");
+  });
+
+  test("clears the band once the pointer leaves the board", () => {
+    renderGrid("computer");
+    setAimColumn("computer", 4);
+
+    clearAimColumn("computer");
+
+    expect(
+      document.querySelector('[data-grid="computer"]').dataset.aim,
+    ).toBeUndefined();
+  });
+
+  test("reports a board that is not on the page rather than throwing", () => {
+    document.body.innerHTML = "<main class='app'></main>";
+
+    expect(setAimColumn("computer", 4)).toBeNull();
+    expect(clearAimColumn("computer")).toBeNull();
   });
 });
 

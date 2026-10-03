@@ -1,25 +1,37 @@
 :root {
-  --panel: #1b2837;
-  --ink: #101b27;
-  --accent: #18bc9c;
-  --accent-ink: #062019;
+  /* The page is the sea the match is played on: one water colour for the
+     ground, one navy for every raised surface, one signal for the live turn. */
+  --water: #0f5876;
+  --water-deep: #0a3e56;
+  --water-high: #1d82a8;
+  --board-tint: rgb(3 27 40 / 0.24);
+  --surface-tint: rgb(6 32 46 / 0.4);
 
-  --hull: #3a4f68;
-  --hit: #ef4b4b;
-  --miss: #5c7a94;
-  --sunk: #9d2a2a;
+  --navy: #22315e;
+  --navy-line: #46589a;
 
-  --text: #e9f0f6;
-  --text-muted: #a6b9cc;
-  --line: #24384a;
-  --water-dot: rgb(24 188 156 / 0.34);
+  --signal: #5fd0f5;
+  --signal-ink: #04212e;
 
-  --radius-sm: 6px;
-  --radius-md: 12px;
+  /* Functional states, a fixed set: they encode the game, they are not brand. */
+  --hull: #16232e;
+  --hit: #e0303c;
+  --hit-glow: rgb(224 48 60 / 0.5);
+  --miss: #a8bfcd;
+  --sunk: #89141d;
 
-  /* the 10x10 grid is the sizing element; the boards sit in fixed halves of a
-     capped row, so the fleet chip list can never stretch them */
-  --board-max: 23rem;
+  --text: #f2f8fb;
+  --text-dim: #b8d4e2;
+  --line: rgb(226 244 252 / 0.26);
+  --chip: #eaf3f8;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+
+  /* the 10x10 grid is the sizing element; the boards sit either side of the
+     fleet readout, so the readout can never stretch them */
+  --board-max: 27rem;
+  --legend-max: 19rem;
 
   /* 8px rule: spacing snaps to the grid, 4px half-step for tight UI only */
   --space-1: 4px;
@@ -35,13 +47,14 @@
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* 8px rule: type scale snapped to the grid (size / line-height) */
-  --fs-sm: 0.875rem; /* 14 / 16 label    */
-  --fs-md: 1rem; /* 16 / 24 body     */
-  --fs-lg: 1.25rem; /* 20 / 28          */
-  --fs-xl: 2rem; /* 32 / 40 masthead */
-  --fs-display: 2.5rem; /* 40 / 48 verdict  */
+  --fs-xs: 0.6875rem;
+  --fs-sm: 0.8125rem;
+  --fs-md: 1rem;
+  --fs-lg: 1.125rem;
+  --fs-xl: 1.5rem;
+  --fs-display: 2.75rem;
 
-  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease: cubic-bezier(0.2, 0, 0, 1);
   --dur-fast: 150ms;
   --dur-med: 250ms;
   --dur-slow: 400ms;
@@ -50,7 +63,7 @@
   --wreck-hatch: repeating-linear-gradient(
     135deg,
     transparent 0 3px,
-    rgb(0 0 0 / 0.3) 3px 6px
+    rgb(0 0 0 / 0.32) 3px 6px
   );
 }
 
@@ -64,67 +77,191 @@ body {
   font-family: var(--font-display);
   font-size: var(--fs-md);
   color: var(--text);
-  background: var(--ink);
+  background-color: var(--water);
+  background-image:
+    radial-gradient(
+      115% 85% at 50% -12%,
+      var(--water-high) 0%,
+      transparent 52%
+    ),
+    radial-gradient(80% 65% at 8% 106%, var(--water-deep) 0%, transparent 58%),
+    radial-gradient(70% 55% at 94% 6%, var(--water-deep) 0%, transparent 52%);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* the sea grain: one SVG noise field, the single texture the page shares */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.14;
+  mix-blend-mode: overlay;
+  background-size: 180px 180px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)'/%3E%3C/svg%3E");
 }
 
 .app {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--space-4);
-  max-width: 60rem;
+  max-width: 82rem;
   margin: 0 auto;
-  padding: var(--space-5) var(--space-3) var(--space-6);
+  padding: var(--space-4) var(--space-4) var(--space-6);
 }
 
-.masthead {
-  text-align: center;
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
 }
 
-.masthead__title {
+.wordmark {
   margin: 0;
   font-size: var(--fs-xl);
   font-weight: 700;
-  line-height: 1.25;
-  letter-spacing: 0.14em;
+  line-height: 1;
+  letter-spacing: 0.26em;
   text-transform: uppercase;
-  text-shadow: 0 1px 0 rgb(0 0 0 / 0.55);
+  color: var(--text);
+  text-shadow: 0 2px 6px rgb(3 22 33 / 0.55);
 }
 
-.masthead__note {
-  margin: var(--space-1) 0 0;
-  color: var(--text-muted);
-  font-size: var(--fs-sm);
+/* the one control that must work in every state, so it sits in its own corner */
+.sfx {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  color: var(--text);
+  cursor: pointer;
 }
 
-.status {
-  width: 100%;
-  max-width: 44rem;
-  min-height: 2rem;
-  margin: 0;
-  padding: var(--space-2) var(--space-3);
-  font-size: var(--fs-md);
-  line-height: 1.5;
-  text-align: center;
-  color: var(--text-muted);
-  background: var(--panel);
+.sfx__input,
+.sfx__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.sfx__frame {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  background: var(--surface-tint);
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
+  transition:
+    color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease);
+}
+
+.sfx__icon {
+  display: block;
+  width: 22px;
+  height: 22px;
+}
+
+.sfx__body {
+  fill: currentColor;
+}
+
+.sfx__wave,
+.sfx__slash {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.sfx__slash {
+  display: none;
+}
+
+.sfx:hover .sfx__frame,
+.sfx__input:focus-visible ~ .sfx__frame {
+  border-color: var(--text);
+}
+
+.sfx__input:focus-visible ~ .sfx__frame {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+}
+
+.sfx__input:not(:checked) ~ .sfx__frame {
+  color: var(--text-dim);
+}
+
+.sfx__input:not(:checked) ~ .sfx__frame .sfx__wave {
+  display: none;
+}
+
+.sfx__input:not(:checked) ~ .sfx__frame .sfx__slash {
+  display: block;
+}
+
+/* the match call: one navy pill over the water, lit when it is your move */
+.status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: min(100%, 42rem);
+  min-height: 3rem;
+  margin: 0;
+  padding: var(--space-2) var(--space-5);
+  font-size: var(--fs-md);
+  font-weight: 600;
+  line-height: 1.5;
+  text-align: center;
+  text-wrap: balance;
+  color: var(--text);
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--navy) 78%, white) 0%,
+    var(--navy) 60%
+  );
+  border: 1px solid var(--navy-line);
+  border-radius: 999px;
+  box-shadow: 0 6px 18px rgb(3 22 33 / 0.4);
+  transition:
+    background-color var(--dur-med) var(--ease),
+    border-color var(--dur-med) var(--ease),
+    color var(--dur-med) var(--ease);
 }
 
 .app[data-phase="playing"][data-turn="player"] .status {
-  color: var(--text);
-  border-color: var(--accent);
-  /* data-turn only changes on a real turn change, so this fires once */
+  color: var(--signal-ink);
+  background-image: none;
+  background-color: var(--signal);
+  border-color: color-mix(in srgb, var(--signal) 60%, white);
   animation: turn-call var(--dur-slow) var(--ease) 2;
 }
-
 .controls {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2);
+  gap: var(--space-2) var(--space-3);
+  width: 100%;
+  padding: var(--space-3);
+  background: var(--surface-tint);
+  border: 1px solid rgb(226 244 252 / 0.12);
+  border-radius: var(--radius-md);
 }
 
 .button {
@@ -132,10 +269,10 @@ body {
   font: inherit;
   font-size: var(--fs-sm);
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text);
-  background: var(--panel);
+  background: rgb(9 44 62 / 0.6);
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -146,35 +283,34 @@ body {
 }
 
 .button:hover {
-  border-color: var(--accent);
-  transform: translateY(-1px);
+  background: rgb(19 72 98 / 0.8);
+  border-color: var(--text-dim);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
 }
 
 .button:active {
   transform: translateY(1px);
 }
 
+.button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .button--primary {
-  color: var(--accent-ink);
-  background: var(--accent);
-  border-color: var(--accent);
+  color: var(--signal-ink);
+  background: var(--signal);
+  border-color: color-mix(in srgb, var(--signal) 60%, white);
 }
 
 .button--primary:hover {
-  background: var(--accent);
-  filter: brightness(1.08);
-}
-
-/* Start game stays locked until the whole fleet is on the board */
-.button:disabled {
-  color: var(--text-muted);
-  cursor: not-allowed;
-  opacity: 0.55;
-}
-
-.button:disabled:hover {
-  border-color: var(--line);
-  transform: none;
+  background: color-mix(in srgb, var(--signal) 85%, white);
+  border-color: white;
 }
 
 .toggle {
@@ -182,353 +318,348 @@ body {
   align-items: center;
   gap: var(--space-2);
   font-size: var(--fs-sm);
-  color: var(--text-muted);
+  font-weight: 500;
+  color: var(--text-dim);
   cursor: pointer;
+  transition: color var(--dur-fast) var(--ease);
+}
+
+.toggle:hover {
+  color: var(--text);
 }
 
 .toggle input {
   width: 1rem;
   height: 1rem;
-  accent-color: var(--accent);
+  accent-color: var(--signal);
+  cursor: pointer;
 }
 
-.button:focus-visible,
-.cell:focus-visible,
-.toggle:focus-within {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-/* placement controls belong to the placing phase, the rest to play */
-.controls [data-action="restart"],
-.controls [data-toggle="hit-again"] {
-  display: none;
-}
-
-.controls[data-phase="playing"] [data-action="restart"],
-.controls[data-phase="over"] [data-action="restart"] {
-  display: inline-flex;
-}
-
-.controls[data-phase="playing"] [data-toggle="hit-again"] {
-  display: inline-flex;
-}
-
-/* switching to pass & play mid-game would wipe it, so offer it only in setup */
-.controls[data-phase="playing"] [data-toggle="local"] {
-  display: none;
-}
-
-.controls[data-phase="playing"] [data-action="random"],
-.controls[data-phase="playing"] [data-action="rotate"],
-.controls[data-phase="playing"] [data-action="reset"],
-.controls[data-phase="playing"] [data-action="start"],
-.controls[data-phase="over"] [data-action="random"],
-.controls[data-phase="over"] [data-action="rotate"],
-.controls[data-phase="over"] [data-action="reset"],
-.controls[data-phase="over"] [data-action="start"] {
-  display: none;
-}
-
+/* two boards and the fleet readout between them, on one ruler */
 .boards {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns:
+    minmax(0, var(--board-max)) minmax(0, var(--legend-max))
+    minmax(0, var(--board-max));
+  justify-content: center;
   align-items: start;
-
-  gap: var(--space-4);
+  gap: var(--space-4) var(--space-5);
   width: 100%;
-  max-width: calc(var(--board-max) * 2 + var(--space-4));
-  margin-inline: auto;
 }
 
 .board {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: var(--space-2);
   min-width: 0;
-}
-
-/* below this the two boards cannot both hold a readable 10x10 grid */
-@media (max-width: 34rem) {
-  .boards {
-    grid-template-columns: minmax(0, 1fr);
-    max-width: var(--board-max);
-  }
-
-  /* wide tracking costs a line break on a phone masthead */
-  .masthead__title {
-    letter-spacing: 0.08em;
-  }
-}
-
-/* the fleets are blurred behind the pass-the-device screen, driven by the
-   dialog's own flag so the blur cannot outlive the Ready button */
-.app:has(.overlay--gate:not([hidden])) .boards {
-  filter: blur(16px);
+  width: 100%;
 }
 
 .board__title {
+  display: inline-flex;
+  align-items: center;
+  height: 2rem;
   margin: 0;
-  padding: var(--space-1) var(--space-2);
-  font-size: var(--fs-sm);
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.2em;
+  text-indent: 0.2em;
   text-transform: uppercase;
-  color: var(--text-muted);
-  background: var(--panel);
+  color: var(--text);
+  text-shadow: 0 2px 4px rgb(3 22 33 / 0.5);
+  transition: color var(--dur-med) var(--ease);
+}
+
+/* the seat you are playing wears a name chip; the other is lettering on water */
+.app[data-own="player"] .board[data-seat="player"] .board__title,
+.app[data-own="computer"] .board[data-seat="computer"] .board__title {
+  height: 2.25rem;
+  padding: 0 var(--space-3);
+  letter-spacing: 0.08em;
+  text-indent: 0.08em;
+  color: var(--navy);
+  background: var(--chip);
   border-radius: var(--radius-sm);
+  text-shadow: none;
+  box-shadow: 0 2px 6px rgb(3 22 33 / 0.35);
 }
-
-/* the board you can act on carries the accent */
-.board:has(.cell:not(:disabled)) .board__title {
-  color: var(--accent-ink);
-  background: var(--accent);
-}
-
-/* the computer's move: your waters are under fire, so the band goes red not teal.
-   Bot mode only - in pass & play the fleet under fire is actionable. */
-.app[data-mode="computer"][data-phase="playing"][data-turn="computer"]
-  .board:has([data-grid="player"])
-  .board__title {
-  color: var(--ink);
-  background: var(--hit);
-}
-
 .grid {
+  position: relative;
   display: grid;
-  grid-template-columns: repeat(10, minmax(0, 1fr));
-  grid-template-rows: repeat(10, minmax(0, 1fr));
+  grid-template: repeat(10, 1fr) / repeat(10, 1fr);
+  width: 100%;
   aspect-ratio: 1;
-  gap: 4px;
-  padding: var(--space-1);
-  background: var(--panel);
+  background: var(--board-tint);
   border: 1px solid var(--line);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition: border-color var(--dur-med) var(--ease);
 }
 
-.board:has(.cell:not(:disabled)) .grid {
-  border-color: var(--accent);
+/* the board in play carries the signal, so the eye lands on the live half */
+.app[data-live="player"] .grid[data-grid="player"],
+.app[data-live="computer"] .grid[data-grid="computer"] {
+  border-color: var(--signal);
 }
 
-.grid[data-shot] {
+/* the aiming band: the column the next shot would fall down */
+.grid[data-aim]::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--aim-col, 0) * 10%);
+  width: 10%;
+  background: rgb(159 224 255 / 0.16);
+  pointer-events: none;
+}
+
+.grid[data-shot="landed"] {
   animation: shock var(--dur-slow) var(--ease);
 }
 
 .cell {
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
   width: 100%;
   height: 100%;
+  margin: 0;
   padding: 0;
-  background: var(--ink);
+  background: none;
   border: 0;
-  border-radius: 2px;
-  cursor: pointer;
-  transition:
-    background var(--dur-fast) var(--ease),
-    border-radius var(--dur-fast) var(--ease),
-    transform var(--dur-fast) var(--ease);
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  cursor: crosshair;
+  transition: background var(--dur-fast) var(--ease);
 }
 
-/* the reticle sits out of flow, or it would push the centred sonar dot aside */
+.cell:nth-child(10n) {
+  border-right: 0;
+}
+
+.cell:nth-child(n + 91) {
+  border-bottom: 0;
+}
+
+/* every mark on the water is a peg or a cross, centred in its square */
 .cell::before {
   content: "";
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 15px;
-  height: 15px;
-  background:
-    linear-gradient(var(--accent), var(--accent)) 50% 0 / 1px 100% no-repeat,
-    linear-gradient(var(--accent), var(--accent)) 0 50% / 100% 1px no-repeat;
-  border: 1px solid var(--accent);
+  inset: 0;
+  width: 30%;
+  height: 30%;
+  margin: auto;
   border-radius: 50%;
-  opacity: 0;
-  transform: translate(-50%, -50%) scale(0.55);
   transition:
-    opacity var(--dur-fast) var(--ease),
-    transform var(--dur-fast) var(--ease);
-  pointer-events: none;
+    background var(--dur-med) var(--ease),
+    box-shadow var(--dur-med) var(--ease),
+    opacity var(--dur-med) var(--ease);
 }
 
-/* an unshot cell shows a single sonar dot */
-.cell::after {
-  content: "";
-  width: 3px;
-  height: 3px;
-  background: var(--water-dot);
-  border-radius: 50%;
-  transition:
-    width var(--dur-fast) var(--ease),
-    height var(--dur-fast) var(--ease);
+.cell:hover:not(:disabled) {
+  background: rgb(159 224 255 / 0.1);
+}
+
+.cell:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: -2px;
+  z-index: 1;
 }
 
 .cell:disabled {
   cursor: default;
 }
 
-/* tints whichever board is in play, not a named seat, so pass & play gives both
-   players the same feedback. Gated to playing: it would out-specify the preview. */
-.app[data-phase="playing"]
-  .board:has(.cell:not(:disabled))
-  .cell:not(:disabled):hover {
-  background: color-mix(in srgb, var(--accent) 18%, var(--ink));
-  cursor: crosshair;
-}
-
-.app[data-phase="playing"]
-  .board:has(.cell:not(:disabled))
-  .cell:not(:disabled):hover::before {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
-}
-
-.app[data-phase="playing"]
-  .board:has(.cell:not(:disabled))
-  .cell:not(:disabled):hover::after {
-  opacity: 0;
-}
-
-.cell:not(:disabled):active {
-  transform: scale(0.9);
-}
-
-.cell--ship,
-.cell--miss {
-  border-radius: var(--radius-sm);
-}
-
-.cell--ship {
-  background: var(--hull);
-}
-
-.cell--miss {
-  background: var(--panel);
-}
-
-.cell--miss::after {
-  width: 8px;
-  height: 8px;
-  background: var(--miss);
-}
-
 .cell--hit,
+.cell--miss,
 .cell--sunk {
-  border-radius: var(--radius-sm);
-  animation: mark var(--dur-med) var(--ease);
+  pointer-events: none;
 }
 
-.cell--hit {
-  background: var(--hit);
+/* a hull you can see: the dark peg the reference draws */
+.cell--ship::before {
+  width: 32%;
+  height: 32%;
+  background: var(--hull);
+  box-shadow: 0 0 0 1.5px rgb(214 236 246 / 0.55);
 }
 
-/* hatched so sunk reads without relying on red alone */
-.cell--sunk {
-  background: var(--wreck-hatch), var(--sunk);
+/* a shot that found nothing */
+.cell--miss::before {
+  width: 44%;
+  height: 44%;
+  border-radius: 0;
+  background:
+    linear-gradient(
+      45deg,
+      transparent 45%,
+      var(--miss) 45% 55%,
+      transparent 55%
+    ),
+    linear-gradient(
+      -45deg,
+      transparent 45%,
+      var(--miss) 45% 55%,
+      transparent 55%
+    );
 }
 
-.cell--ship::after,
-.cell--hit::after,
+/* a shot that landed: the red peg, the one mark allowed to glow */
+.cell--hit::before {
+  width: 36%;
+  height: 36%;
+  background-color: var(--hit);
+  background-image: radial-gradient(
+    circle at 34% 30%,
+    rgb(255 255 255 / 0.5),
+    transparent 58%
+  );
+  box-shadow:
+    0 0 0 1.5px rgb(255 255 255 / 0.5),
+    0 0 12px var(--hit-glow);
+  animation: hit-land var(--dur-med) var(--ease);
+}
+
+/* a wreck, under the hatch so it never reads as a plain hit */
+.cell--sunk::before {
+  width: 36%;
+  height: 36%;
+  background-color: var(--sunk);
+  background-image: radial-gradient(
+    circle at 34% 30%,
+    rgb(255 255 255 / 0.35),
+    transparent 58%
+  );
+  box-shadow: 0 0 0 1.5px rgb(255 255 255 / 0.35);
+}
+
 .cell--sunk::after {
-  opacity: 0;
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--wreck-hatch);
+  pointer-events: none;
 }
 
-.cell--preview {
-  background: var(--accent);
-  border-radius: var(--radius-sm);
+/* the ship still to be placed, ghosted ahead of the click */
+.cell--preview::before {
+  width: 32%;
+  height: 32%;
+  background: var(--signal);
+  opacity: 0.75;
+  box-shadow: 0 0 0 1.5px var(--signal-ink);
 }
 
-.cell--invalid {
+.cell--invalid::before {
+  width: 32%;
+  height: 32%;
   background: var(--hit);
-  border-radius: var(--radius-sm);
+  opacity: 0.6;
+} /* the fleet readout: the ship silhouettes are the page's identity motif */
+.legend {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  gap: var(--space-4) var(--space-2);
+  width: 100%;
+  margin-top: var(--space-2);
 }
 
-.cell--preview::after,
-.cell--invalid::after {
-  opacity: 0;
+.legend__column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.legend__title {
+  margin: 0;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--text-dim);
 }
 
 .fleet {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1) var(--space-2);
-  min-height: 1.5rem;
+  flex-direction: column;
+  gap: var(--space-2);
   margin: 0;
   padding: 0;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
   list-style: none;
-  color: var(--text-muted);
 }
 
 .fleet__item {
-  display: inline-flex;
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
   align-items: center;
-  gap: var(--space-1);
-  padding: 2px var(--space-2);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  line-height: 1.3;
+  color: var(--text-dim);
+  transition:
+    color var(--dur-med) var(--ease),
+    opacity var(--dur-med) var(--ease);
 }
 
-.fleet__item::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  background: var(--hull);
-  border-radius: 1px;
+.fleet__ship {
+  width: 100%;
+  height: 0.75rem;
+  fill: var(--text-dim);
+  opacity: 0.9;
+  transition:
+    fill var(--dur-med) var(--ease),
+    opacity var(--dur-med) var(--ease);
 }
 
 .fleet__item--sunk {
-  color: var(--sunk);
-  border-color: var(--sunk);
+  color: rgb(184 212 226 / 0.5);
   text-decoration: line-through;
 }
 
-.fleet__item--sunk::before {
-  background: var(--wreck-hatch), var(--sunk);
+.fleet__item--sunk .fleet__ship {
+  fill: var(--sunk);
+  opacity: 0.5;
 }
 
+/* the two dialogs the game needs: the handover cover and the verdict */
 .overlay {
   position: fixed;
   inset: 0;
+  z-index: 100;
   display: grid;
   place-items: center;
   padding: var(--space-3);
-  background: rgb(16 27 39 / 0.82);
+  background: rgb(5 27 38 / 0.84);
+  transition: opacity var(--dur-med) var(--ease);
 }
 
 .overlay[hidden] {
   display: none;
 }
 
-/* the pass-the-device screen: nearly opaque, so neither fleet can be read off
-   the screen while the device changes hands */
 .overlay--gate {
-  background: rgb(16 27 39 / 0.97);
-}
-
-.overlay--gate .overlay__title {
-  font-size: var(--fs-xl);
+  background: rgb(10 62 86 / 0.98);
 }
 
 .overlay__panel {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: var(--space-3);
-  max-width: 24rem;
+  max-width: 26rem;
   padding: var(--space-5) var(--space-4);
   text-align: center;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-top: 3px solid var(--accent);
+  background: var(--navy);
+  border: 1px solid var(--navy-line);
   border-radius: var(--radius-md);
+  box-shadow: 0 24px 60px rgb(3 18 26 / 0.55);
   animation: rise var(--dur-med) var(--ease);
-}
-
-.overlay[data-verdict="lose"] .overlay__panel {
-  border-top-color: var(--hit);
 }
 
 .overlay__title {
@@ -538,7 +669,7 @@ body {
   line-height: 1.2;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--signal);
 }
 
 .overlay[data-verdict="lose"] .overlay__title {
@@ -547,46 +678,81 @@ body {
 
 .overlay__message {
   margin: 0;
-  color: var(--text-muted);
+  font-size: var(--fs-lg);
+  line-height: 1.5;
+  color: var(--text-dim);
 }
-
-/* light sweeping through the water when a shot lands */
-@keyframes shock {
+@keyframes hit-land {
   from {
-    background: color-mix(in srgb, var(--accent) 22%, var(--panel));
+    transform: scale(0.3);
   }
-
-  to {
-    background: var(--panel);
+  60% {
+    transform: scale(1.15);
   }
-}
-
-/* the turn band blinking twice to call the move back to you */
-@keyframes turn-call {
-  50% {
-    border-color: var(--line);
-  }
-}
-
-@keyframes mark {
-  from {
-    transform: scale(0.72);
-  }
-
   to {
     transform: scale(1);
+  }
+}
+
+@keyframes shock {
+  from {
+    background-color: rgb(159 224 255 / 0.22);
+  }
+  to {
+    background-color: var(--board-tint);
+  }
+}
+
+@keyframes turn-call {
+  50% {
+    opacity: 0.72;
   }
 }
 
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(16px) scale(0.96);
   }
-
   to {
     opacity: 1;
     transform: none;
+  }
+}
+
+/* the three-column row stops fitting before the tablet width, so the readout
+   drops below the boards while they stay side by side */
+@media (max-width: 74rem) {
+  .boards {
+    grid-template-columns: repeat(2, minmax(0, var(--board-max)));
+  }
+
+  .legend {
+    grid-row: 2;
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(2, minmax(0, var(--legend-max)));
+    justify-content: center;
+  }
+}
+
+/* one board per row reads better than two 20rem boards, at the width they break */
+@media (max-width: 46rem) {
+  .boards {
+    grid-template-columns: minmax(0, var(--board-max));
+  }
+
+  .legend {
+    grid-row: auto;
+    grid-column: auto;
+  }
+
+  .app {
+    padding: var(--space-3) var(--space-2) var(--space-5);
+  }
+
+  .status {
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--fs-sm);
   }
 }
 

@@ -1,5 +1,32 @@
 import { BOARD_SIZE } from "./fleet.js";
 
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+// Side-on profiles drawn in one 34x12 box, each spanning its own length so the
+// silhouette itself carries the size of the ship. No raster assets to load.
+const SILHOUETTES = {
+  Carrier: "M1 10h32l-3-5H12L7 7 1 10z M22 5V1h4v4z",
+  Battleship: "M2 10h30l-2-4H4z M9 6V2h4v4z M21 6V2h4v4z",
+  Cruiser: "M6 10h24l-3-4H9z M15 6V2h6v4z",
+  Submarine:
+    "M5 9h24c2 0 3-1 3-2s-1-2-3-2H5c-2 0-3 1-3 2s1 2 3 2z M15 5V1h4v4z",
+  Destroyer: "M10 10h14l-3-4H13z M16 6V3h2v3z",
+};
+
+const silhouette = (name) => {
+  const svg = document.createElementNS(SVG_NS, "svg");
+  const hull = document.createElementNS(SVG_NS, "path");
+
+  svg.setAttribute("viewBox", "0 0 34 12");
+  svg.setAttribute("class", "fleet__ship");
+  svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("focusable", "false");
+  hull.setAttribute("d", SILHOUETTES[name] ?? SILHOUETTES.Destroyer);
+  svg.append(hull);
+
+  return svg;
+};
+
 const ROW_LABELS = Array.from({ length: BOARD_SIZE }, (_, index) =>
   String.fromCharCode(65 + index),
 );
@@ -37,6 +64,7 @@ export const renderGrid = (label) => {
   }
 
   grid.replaceChildren(...cells);
+  delete grid.dataset.aim;
 
   return grid;
 };
@@ -79,7 +107,7 @@ export const paintBoard = (label, board, { revealShips = false } = {}) => {
       const hit = Boolean(ship) && board.hasBeenAttacked(coordinate);
 
       paintCell(cellAt(label, coordinate), {
-        ship: revealShips && Boolean(ship),
+        ship: (revealShips && Boolean(ship)) || hit,
         hit,
         miss: misses.has(`${x},${y}`),
         sunk: hit && ship.isSunk(),
@@ -126,9 +154,12 @@ export const renderFleet = (label, ships) => {
   panel.replaceChildren(
     ...ships.map(({ name, length, sunk }) => {
       const item = document.createElement("li");
+      const text = document.createElement("span");
 
       item.className = sunk ? "fleet__item fleet__item--sunk" : "fleet__item";
-      item.textContent = `${name} · ${length}`;
+      text.className = "fleet__label";
+      text.textContent = `${name} · ${length}`;
+      item.append(silhouette(name), text);
 
       return item;
     }),
@@ -170,6 +201,24 @@ export const paintPreview = (label, coordinates, valid) => {
     if (cell) cell.classList.add(valid ? "cell--preview" : "cell--invalid");
   });
 };
+
+// The aiming band is the column the shot would fall down: a colour rule the
+// stylesheet paints, driven by one custom property on the board.
+export const setAimColumn = (label, column = null) => {
+  const grid = gridOf(label);
+
+  if (!grid) return null;
+
+  if (column === null) delete grid.dataset.aim;
+  else {
+    grid.dataset.aim = "on";
+    grid.style.setProperty("--aim-col", String(column));
+  }
+
+  return grid;
+};
+
+export const clearAimColumn = (label) => setAimColumn(label, null);
 
 export const renderSeatTitles = (titles) => {
   Object.entries(titles).forEach(([label, text]) => {

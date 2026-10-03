@@ -13,14 +13,58 @@
   </head>
   <body>
     <main class="app">
-      <header class="masthead">
-        <h1 class="masthead__title">Battleship</h1>
-        <p class="masthead__note">Hide your fleet, then hunt the enemy down.</p>
+      <header class="topbar">
+        <label class="sfx">
+          <input
+            class="sfx__input"
+            type="checkbox"
+            data-toggle="sound"
+            checked
+          />
+          <span class="sfx__frame" aria-hidden="true">
+            <svg class="sfx__icon" viewBox="0 0 24 24" focusable="false">
+              <path class="sfx__body" d="M4 9h3l4-4v14l-4-4H4z" />
+              <path class="sfx__wave" d="M15 9a4 4 0 0 1 0 6" />
+              <path class="sfx__wave" d="M18 6.5a8 8 0 0 1 0 11" />
+              <path class="sfx__slash" d="M14.5 9.5l6 5M20.5 9.5l-6 5" />
+            </svg>
+          </span>
+          <span class="sfx__label">Sound</span>
+        </label>
+
+        <h1 class="wordmark">Battleship</h1>
       </header>
 
       <p class="status" data-status role="status" aria-live="polite">
         Place your ships to begin.
       </p>
+
+      <section class="boards">
+        <article class="board" data-seat="player">
+          <h2 class="board__title" data-board-title="player">You</h2>
+          <div class="grid" data-grid="player" aria-label="Your board"></div>
+        </article>
+
+        <div class="legend">
+          <div class="legend__column">
+            <h3 class="legend__title">Your fleet</h3>
+            <ul class="fleet" data-fleet="player" aria-label="Your ships"></ul>
+          </div>
+          <div class="legend__column">
+            <h3 class="legend__title">Enemy fleet</h3>
+            <ul
+              class="fleet"
+              data-fleet="computer"
+              aria-label="Enemy ships"
+            ></ul>
+          </div>
+        </div>
+
+        <article class="board" data-seat="computer">
+          <h2 class="board__title" data-board-title="computer">Computer</h2>
+          <div class="grid" data-grid="computer" aria-label="Enemy board"></div>
+        </article>
+      </section>
 
       <div class="controls" data-controls data-phase="placing">
         <button type="button" class="button" data-action="random">
@@ -48,25 +92,7 @@
           <input type="checkbox" data-toggle="local" />
           Two players, pass &amp; play
         </label>
-        <label class="toggle">
-          <input type="checkbox" data-toggle="sound" checked />
-          Sound
-        </label>
       </div>
-
-      <section class="boards">
-        <article class="board">
-          <h2 class="board__title" data-board-title="player">Your fleet</h2>
-          <div class="grid" data-grid="player" aria-label="Your board"></div>
-          <ul class="fleet" data-fleet="player" aria-label="Your ships"></ul>
-        </article>
-
-        <article class="board">
-          <h2 class="board__title" data-board-title="computer">Enemy waters</h2>
-          <div class="grid" data-grid="computer" aria-label="Enemy board"></div>
-          <ul class="fleet" data-fleet="computer" aria-label="Enemy ships"></ul>
-        </article>
-      </section>
 
       <div
         class="overlay overlay--gate"
