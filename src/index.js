@@ -1,5 +1,6 @@
 import "./styles.css";
 import {
+  clearAimColumn,
   clearPreview,
   flashBoard,
   hideGate,
@@ -10,6 +11,7 @@ import {
   renderGrid,
   renderSeatTitles,
   renderStatus,
+  setAimColumn,
   setBoardInteractive,
   setGameInert,
   showGate,
@@ -51,7 +53,9 @@ const grids = Object.fromEntries(
 
 const app = document.querySelector(".app");
 const controls = document.querySelector("[data-controls]");
+const randomButton = document.querySelector('[data-action="random"]');
 const rotateButton = document.querySelector('[data-action="rotate"]');
+const resetButton = document.querySelector('[data-action="reset"]');
 const startButton = document.querySelector('[data-action="start"]');
 const hitAgainToggle = document.querySelector('[data-toggle="hit-again"]');
 const localToggle = document.querySelector('[data-toggle="local"]');
@@ -69,13 +73,29 @@ const interactiveSeat = () => {
     : game.aimingSeat();
 };
 
-const titlesFor = () =>
-  game.getMode() === "local"
-    ? {
-        player: `${nameOf("player")}'s fleet`,
-        computer: `${nameOf("computer")}'s fleet`,
-      }
-    : { player: "Your fleet", computer: "Enemy waters" };
+const titlesFor = () => ({
+  player: nameOf("player"),
+  computer: nameOf("computer"),
+});
+
+// The board that wears the name chip: your own seat, or on a shared device
+// whichever seat is acting, so the chip tracks the fleet actually in hand.
+const ownSeatFor = () => {
+  if (game.getMode() !== "local") return "player";
+  if (game.isOver()) return game.getWinner();
+
+  return game.getPhase() === "placing" ? game.getPlacingSeat() : game.getTurn();
+};
+
+// The board that carries the signal: the one being aimed at, or the one whose
+// fleet is being laid out. Null when neither half is the player's to act on.
+const liveSeatFor = () => {
+  if (game.isOver() || game.getHandoff()) return null;
+  if (game.getPhase() === "placing") return game.getPlacingSeat();
+  if (game.getMode() === "local") return OTHER_SEAT[game.getTurn()];
+
+  return game.getTurn() === "player" ? "computer" : null;
+};
 
 const statusFor = () => {
   if (game.isOver()) {
@@ -116,8 +136,10 @@ const renderControls = () => {
   rotateButton.textContent =
     orientation === "vertical" ? "Rotate: vertical" : "Rotate: horizontal";
 
-  // Start game stays locked until the whole fleet is on the board, so an
-  // unfinished layout can never be started by accident.
+  [randomButton, rotateButton, resetButton].forEach((button) => {
+    button.disabled = !placingSeat;
+  });
+
   startButton.disabled = !(placingSeat && game.fleetReady(placingSeat));
 };
 
@@ -210,6 +232,7 @@ const announce = () => {
 
 const render = () => {
   const interactive = interactiveSeat();
+  const aiming = game.getPhase() === "playing" ? interactive : null;
 
   SEATS.forEach((seat) => {
     paintBoard(seat, game.getBoard(seat), {
@@ -217,6 +240,9 @@ const render = () => {
     });
     renderFleet(seat, game.getBoard(seat).getShips());
     setBoardInteractive(seat, game.getBoard(seat), seat === interactive);
+
+    // The band belongs to the board in play; anywhere else it is stale.
+    if (seat !== aiming) clearAimColumn(seat);
   });
 
   renderStatus(statusFor());
@@ -229,9 +255,15 @@ const render = () => {
   app.dataset.phase = game.getPhase();
   app.dataset.turn = game.getTurn();
   app.dataset.mode = game.getMode();
+  app.dataset.own = ownSeatFor();
+  app.dataset.live = liveSeatFor() ?? "";
 };
 
-const clearPreviews = () => SEATS.forEach((seat) => clearPreview(seat));
+const clearPreviews = () =>
+  SEATS.forEach((seat) => {
+    clearPreview(seat);
+    clearAimColumn(seat);
+  });
 
 const playComputer = () => {
   const shot = game.returnFire();
@@ -329,11 +361,18 @@ SEATS.forEach((label) => {
   grid.addEventListener("pointerover", (event) => {
     const cell = event.target.closest(".cell");
 
-    if (cell)
-      previewAt(label, [Number(cell.dataset.x), Number(cell.dataset.y)]);
+    if (!cell || cell.disabled) return;
+
+    const coordinate = [Number(cell.dataset.x), Number(cell.dataset.y)];
+
+    if (game.getPhase() === "placing") previewAt(label, coordinate);
+    else if (label === interactiveSeat()) setAimColumn(label, coordinate[0]);
   });
 
-  grid.addEventListener("pointerleave", () => clearPreview(label));
+  grid.addEventListener("pointerleave", () => {
+    clearPreview(label);
+    clearAimColumn(label);
+  });
 });
 
 const actions = {
